@@ -1,0 +1,303 @@
+curl --request GET \
+  --url 'https://api.rizqmusictv.com/users/12345/tracks?limit=1&linked_partitioning=true&client_id=OK_SHARE_CLIENT_'
+  oEmbed
+oEmbed is a format for allowing an embedded representation of a URL on third party sites. The simple API allows a website to display embedded content (such as photos or videos) when a user posts a link to that resource, without having to parse the resource directly.
+
+This document is stored on GitHub.
+
+Table Of Contents
+Quick Example
+Full Spec
+Security considerations
+Discovery
+More examples
+Authors
+Implementations
+1. Quick Example
+A consumer (e.g. WordPress) makes the following HTTP request:
+
+http://www.flickr.com/services/oembed/?format=json&url=http%3A//www.flickr.com/photos/bees/2341623661/
+The provider (e.g. Flickr) then responds with an oEmbed response:
+
+{
+	"version": "1.0",
+	"type": "photo",
+	"width": 240,
+	"height": 160,
+	"title": "ZB8T0193",
+	"url": "http://farm4.static.flickr.com/3123/2341623661_7c99f48bbf_m.jpg",
+	"author_name": "Bees",
+	"author_url": "http://www.flickr.com/photos/bees/",
+	"provider_name": "Flickr",
+	"provider_url": "http://www.flickr.com/"
+}
+This allows the consumer to turn a URL to a Flickr photo page into structured data to allow embedding of that photo in the consumer's website.
+
+2. Full Spec
+This spec is broken into three parts - configuration, the consumer request and the provider response.
+
+An oEmbed exchange occurs between a consumer and a provider. A consumer wishes to show an embedded representation of a third party resource on their own web site, such as a photo or an embedded video. A provider implements the oEmbed API to allow consumers to fetch that representation.
+
+2.1. Configuration
+Configuration for oEmbed is very simple. Providers must specify one or more URL scheme and API endpoint pairs. The URL scheme describes which URLs provided by the service may have an embedded representation. The API endpoint describes where the consumer may request representations for those URLs.
+
+For instance:
+
+URL scheme: http://www.flickr.com/photos/*
+API endpoint: http://www.flickr.com/services/oembed/
+The URL scheme may contain one or more wildcards (specified with an asterisk). Wildcards may be present in the domain portion of the URL, or in the path. Within the domain portion, wildcards may only be used for subdomains. Wildcards may not be used in the scheme (to support HTTP and HTTPS, provide two url/endpoint pairs).
+
+Some examples:
+
+http://www.flickr.com/photos/* OK
+http://www.flickr.com/photos/*/foo/ OK
+http://*.flickr.com/photos/* OK
+http://*.com/photos/* NOT OK
+*://www.flickr.com/photos/* NOT OK
+The API endpoint must point to a URL with either HTTP or HTTPS scheme which implements the API described below.
+
+2.2. Consumer Request
+Requests sent to the API endpoint must be HTTP GET requests, with all arguments sent as query parameters. All arguments must be urlencoded (as per RFC 1738).
+
+The following query parameters are defined as part of the spec:
+
+url (required)
+The URL to retrieve embedding information for.
+maxwidth (optional)
+The maximum width of the embedded resource. Only applies to some resource types (as specified below). For supported resource types, this parameter must be respected by providers.
+maxheight (optional)
+The maximum height of the embedded resource. Only applies to some resource types (as specified below). For supported resource types, this parameter must be respected by providers.
+format (optional)
+The required response format. When not specified, the provider can return any valid response format. When specified, the provider must return data in the request format, else return an error (see below for error codes).
+Providers should ignore all other arguments it doesn't expect. Providers are welcome to support custom additional parameters.
+
+Some examples:
+
+http://flickr.com/services/oembed?url=http%3A//flickr.com/photos/bees/2362225867/
+http://flickr.com/services/oembed?url=http%3A//flickr.com/photos/bees/2362225867/&maxwidth=300&maxheight=400&format=json
+Note: Providers may choose to have the format specified as part of the endpoint URL itself, rather than as a query string parameter.
+
+For instance:
+
+URL scheme: http://www.flickr.com/photos/*
+API XML endpoint: http://www.flickr.com/services/oembed.xml
+API JSON endpoint: http://www.flickr.com/services/oembed.json
+In this case, the format parameter is not needed and will be ignored. When a provider publishes a URL scheme and API endpoint pair, they should clearly state whether the format is implicit in the endpoint or if it needs to be passed as an argument.
+
+2.3. Provider Response
+The response returned by the provider can be in either JSON or XML. Each format specifies a way of encoding name-value pairs which comprise the response data. Each format has an associated mime-type which must be returned in the Content-type header along with the response.
+
+2.3.1. JSON response
+JSON responses must contain well formed JSON and must use the mime-type of application/json. The JSON response format may be requested by the consumer by specifying a format of json.
+
+For example:
+
+{
+	"foo": "bar",
+	"baz": 1
+}
+The key-value pairs to be returned are specified below. All text must be UTF-8 encoded.
+
+2.3.2. XML response
+XML responses must use the mime-type of text/xml. The XML response format may be requested by the consumer by specifying a format of xml. The response body must contain well formed XML with a root element called oembed and child elements for each key containing the value within the element body. For example:
+
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<oembed>
+	<foo>bar</foo>
+	<baz>1</baz>
+</oembed>
+The key-value pairs to be returned are specified below. All text must be UTF-8 encoded. Values should be escaped PCDATA. For example:
+
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<oembed>
+	<html>&lt;b&gt;awesome!&lt;/b&gt;</html>
+</oembed>
+2.3.4. Response parameters
+Responses can specify a resource type, such as photo or video. Each type has specific parameters associated with it. The following response parameters are valid for all response types:
+
+type (required)
+The resource type. Valid values, along with value-specific parameters, are described below.
+version (required)
+The oEmbed version number. This must be 1.0.
+title (optional)
+A text title, describing the resource.
+author_name (optional)
+The name of the author/owner of the resource.
+author_url (optional)
+A URL for the author/owner of the resource.
+provider_name (optional)
+The name of the resource provider.
+provider_url (optional)
+The url of the resource provider.
+cache_age (optional)
+The suggested cache lifetime for this resource, in seconds. Consumers may choose to use this value or not.
+thumbnail_url (optional)
+A URL to a thumbnail image representing the resource. The thumbnail must respect any maxwidth and maxheight parameters. If this parameter is present, thumbnail_width and thumbnail_height must also be present.
+thumbnail_width (optional)
+The width of the optional thumbnail. If this parameter is present, thumbnail_url and thumbnail_height must also be present.
+thumbnail_height (optional)
+The height of the optional thumbnail. If this parameter is present, thumbnail_url and thumbnail_width must also be present.
+Providers may optionally include any parameters not specified in this document (so long as they use the same key-value format) and consumers may choose to ignore these. Consumers must ignore parameters they do not understand.
+
+2.3.4.1. The photo type
+This type is used for representing static photos. The following parameters are defined:
+
+url (required)
+The source URL of the image. Consumers should be able to insert this URL into an <img> element. Only HTTP and HTTPS URLs are valid.
+width (required)
+The width in pixels of the image specified in the url parameter.
+height (required)
+The height in pixels of the image specified in the url parameter.
+Responses of this type must obey the maxwidth and maxheight request parameters.
+
+2.3.4.2. The video type
+This type is used for representing playable videos. The following parameters are defined:
+
+html (required)
+The HTML required to embed a video player. The HTML should have no padding or margins. Consumers may wish to load the HTML in an off-domain iframe to avoid XSS vulnerabilities.
+width (required)
+The width in pixels required to display the HTML.
+height (required)
+The height in pixels required to display the HTML.
+Responses of this type must obey the maxwidth and maxheight request parameters. If a provider wishes the consumer to just provide a thumbnail, rather than an embeddable player, they should instead return a photo response type.
+
+2.3.4.3. The link type
+Responses of this type allow a provider to return any generic embed data (such as title and author_name), without providing either the url or html parameters. The consumer may then link to the resource, using the URL specified in the original request.
+
+2.3.4.4. The rich type
+This type is used for rich HTML content that does not fall under one of the other categories. The following parameters are defined:
+
+html (required)
+The HTML required to display the resource. The HTML should have no padding or margins. Consumers may wish to load the HTML in an off-domain iframe to avoid XSS vulnerabilities. The markup should be valid XHTML 1.0 Basic.
+width (required)
+The width in pixels required to display the HTML.
+height (required)
+The height in pixels required to display the HTML.
+Responses of this type must obey the maxwidth and maxheight request parameters.
+
+2.3.5. Errors
+Providers should return any error conditions as HTTP status codes. The following status codes are defined as part of the oEmbed specification:
+
+404 Not Found
+The provider has no response for the requested url parameter. This allows providers to be broad in their URL scheme, and then determine at call time if they have a representation to return.
+501 Not Implemented
+The provider cannot return a response in the requested format. This should be sent when (for example) the request includes format=xml and the provider doesn't support XML responses. However, providers are encouraged to support both JSON and XML.
+401 Unauthorized
+The specified URL contains a private (non-public) resource. The consumer should provide a link directly to the resource instead of embedding any extra information, and rely on the provider to provide access control.
+3. Security considerations
+When a consumer displays any URLs, they will probably want to filter the URL scheme to be one of http, https or mailto, although providers are free to specify any valid URL. Without filtering, Javascript:... style URLs could be used for XSS attacks.
+
+When a consumer displays HTML (as with video embeds), there's a vector for XSS attacks from the provider. To avoid this, it is recommended that consumers display the HTML in an iframe, hosted from another domain. This ensures that the HTML cannot access cookies from the consumer domain.
+
+4. Discovery
+oEmbed providers can choose to make their oEmbed support discoverable by adding <link> elements to the head of their existing (X)HTML documents or by setting Link headers.
+
+Element example:
+
+<link rel="alternate" type="application/json+oembed"
+  href="http://flickr.com/services/oembed?url=http%3A%2F%2Fflickr.com%2Fphotos%2Fbees%2F2362225867%2F&format=json"
+  title="Bacon Lollys oEmbed Profile" />
+<link rel="alternate" type="text/xml+oembed"
+  href="http://flickr.com/services/oembed?url=http%3A%2F%2Fflickr.com%2Fphotos%2Fbees%2F2362225867%2F&format=xml"
+  title="Bacon Lollys oEmbed Profile" />
+Header example:
+
+Link: <http://flickr.com/services/oembed?url=http%3A%2F%2Fflickr.com%2Fphotos%2Fbees%2F2362225867%2F&format=json>; rel="alternate"; type="application/json+oembed"; title="Bacon Lollys oEmbed Profile"
+Link: <http://flickr.com/services/oembed?url=http%3A%2F%2Fflickr.com%2Fphotos%2Fbees%2F2362225867%2F&format=xml>; rel="alternate"; type="text/xml+oembed"; title="Bacon Lollys oEmbed Profile"
+The URLs contained within the href attribute or uri-reference within angle brackets should be the full oEmbed endpoint plus URL and any needed format parameter. No other request parameters should be included in this URL.
+
+The type attribute must contain either application/json+oembed for JSON responses, or text/xml+oembed for XML.
+
+5. More examples
+5.1. Video example
+Request:
+
+https://www.youtube.com/oembed?url=https%3A//youtube.com/watch%3Fv%3DM3r2XDceM6A&format=json
+Response:
+
+{
+	"version": "1.0",
+	"type": "video",
+	"provider_name": "YouTube",
+	"provider_url": "https://youtube.com/",
+	"width": 425,
+	"height": 344,
+	"title": "Amazing Nintendo Facts",
+	"author_name": "ZackScott",
+	"author_url": "https://www.youtube.com/user/ZackScott",
+	"html":
+		"<object width=\"425\" height=\"344\">
+			<param name=\"movie\" value=\"https://www.youtube.com/v/M3r2XDceM6A&fs=1\"></param>
+			<param name=\"allowFullScreen\" value=\"true\"></param>
+			<param name=\"allowscriptaccess\" value=\"always\"></param>
+			<embed src=\"https://www.youtube.com/v/M3r2XDceM6A&fs=1\"
+				type=\"application/x-shockwave-flash\" width=\"425\" height=\"344\"
+				allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+		</object>",
+}
+5.2. Link example
+Request:
+
+http://iamcal.com/oembed/?url=http%3A//www.iamcal.com/linklog/1206113631/&format=xml
+Response:
+
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<oembed>
+	<version>1.0</version>
+	<type>link</type>
+	<author_name>Cal Henderson</author_name>
+	<author_url>http://iamcal.com/</author_url>
+	<cache_age>86400</cache_age>
+	<provider_name>iamcal.com</provider_name>
+	<provider_url>http://iamcal.com/</provider_url>
+</oembed>
+6. Authors
+Cal Henderson (cal [at] iamcal.com)
+Mike Malone (mjmalone [at] gmail.com)
+Leah Culver (leah.culver [at] gmail.com)
+Richard Crowley (r [at] rcrowley.org)
+7. Implementations
+7.1. Providers
+Providers are available programatically as a json file: https://oembed.com/providers.json.
+
+To add new providers, please fork this repo on GitHub and add/modify providers/*.yml.
+
+There are currently 298 providers in the registry. Providers and consumers are strongly encouraged to use the discovery mechanism, rather than the registry.
+
+7.2. Consumers
+Many services consume oEmbed information to display link information, including WordPress and Slack.
+
+There are also some tools specifically built around managing URL embeds:
+
+Iframely (http://iframely.com/)
+OEmbed Link Viewer (https://oembed.link/)
+7.3. Libraries
+PHP: php-oembed (http://code.google.com/p/php-oembed/)
+PHP: Services_oEmbed (http://pear.php.net/package/Services_oEmbed)
+PHP: Essence (https://github.com/felixgirault/essence)
+PHP: Embera (https://github.com/mpratt/Embera)
+Perl: Web-oEmbed (http://search.cpan.org/~miyagawa/Web-oEmbed/)
+Ruby: oembed_links (http://github.com/netshade/oembed_links)
+Python: pyoembed (http://github.com/rafaelmartins/pyoembed/)
+Python: PyEmbed (http://pyembed.github.io)
+Python: python-oembed (https://github.com/abarmat/python-oembed)
+Django: micawber (https://github.com/coleifer/micawber)
+Java: java-oembed (https://github.com/michael-simons/java-oembed)
+.Net: oEmbed API Wrapper (http://oembed.codeplex.com/)
+JQuery: oEmbed API Wrapper (https://github.com/starfishmod/jquery-oembed-all)
+Node.js: oEmbed API Gateway (https://github.com/itteco/iframely)
+Elixir: furlex (https://github.com/claytongentry/furlex)
+Elixir: elixir-oembed (https://github.com/r8/elixir-oembed)
+Press and Links
+The official oEmbed mailing list
+Webmonkey tutorial
+Leah's blog
+ajaxian
+This document is stored on GitHub. Please check the mailing list, fork and contribute.
+#Rizqshops
+rizqshops@googlegroups.com
+rizqshops.com
+
+@Rizqshops
+@SamTradersSmcPvtLtd
+https@samtraders.com

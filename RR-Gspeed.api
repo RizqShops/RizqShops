@@ -1,0 +1,777 @@
+
+PageSpeed Insights
+PageSpeed Insights
+
+
+Make your web pages fast on all devices
+
+PageSpeed Insights
+PageSpeed Insights
+Home
+Products
+Make the Web Faster
+Insights
+DOCS
+Was this helpful?
+
+Method: pagespeedapi.runpagespeed
+
+bookmark_border
+
+
+Runs PageSpeed analysis on the page at the specified URL, and returns PageSpeed scores, a list of suggestions to make that page faster, and other information.
+
+HTTP request
+GET https://pagespeedonline.googleapis.com/pagespeedonline/v5/runPagespeed
+
+The URL uses gRPC Transcoding syntax.
+
+Query parameters
+Parameters
+category
+enum (Category)
+
+A Lighthouse category to run; if none are given, only Performance category will be run
+
+locale
+string
+
+The locale used to localize formatted results
+
+strategy
+enum (Strategy)
+
+The analysis strategy (desktop or mobile) to use, and desktop is the default
+
+url
+string
+
+Required. The URL to fetch and analyze
+
+utm_campaign
+string
+
+Campaign name for analytics.
+
+utm_source
+string
+
+Campaign source for analytics.
+
+captchaToken
+string
+
+The captcha token passed when filling out a captcha.
+
+Request body
+The request body must be empty.
+
+Response body
+If successful, the response body contains data with the following structure:
+
+The Pagespeed API response object.
+
+JSON representation
+
+{
+  "kind": string,
+  "captchaResult": string,
+  "id": string,
+  "loadingExperience": {
+    object (PagespeedApiLoadingExperienceV5)
+  },
+  "originLoadingExperience": {
+    object (PagespeedApiLoadingExperienceV5)
+  },
+  "analysisUTCTimestamp": string,
+  "lighthouseResult": {
+    object (LighthouseResultV5)
+  },
+  "version": {
+    object (PagespeedVersion)
+  }
+}
+Fields
+kind
+string
+
+Kind of result.
+
+captchaResult
+string
+
+The captcha verify result
+
+id
+string
+
+Canonicalized and final URL for the document, after following page redirects (if any).
+
+loadingExperience
+object (PagespeedApiLoadingExperienceV5)
+
+Metrics of end users' page loading experience.
+
+originLoadingExperience
+object (PagespeedApiLoadingExperienceV5)
+
+Metrics of the aggregated page loading experience of the origin
+
+analysisUTCTimestamp
+string
+
+The UTC timestamp of this analysis.
+
+lighthouseResult
+object (LighthouseResultV5)
+
+Lighthouse response for the audit url as an object.
+
+version
+object (PagespeedVersion)
+
+The version of PageSpeed used to generate these results.
+
+Authorization Scopes
+Requires the following OAuth scope:
+
+openid
+For more information, see the OAuth 2.0 Overview.
+
+Category
+The enumerated categories that should be analyzed.
+
+Enums
+CATEGORY_UNSPECIFIED
+Default UNDEFINED category.
+ACCESSIBILITY
+Accessibility (a11y), category pertaining to a website's capacity to be accessible to all users.
+BEST_PRACTICES
+Best Practices, category pertaining to a website's conformance to web best practice.
+PERFORMANCE
+Performance, category pertaining to a website's performance.
+PWA
+Progressive Web App (PWA), category pertaining to a website's ability to be run as a PWA.
+SEO
+Search Engine Optimization (SEO), category pertaining to a website's ability to be indexed by search engines.
+Strategy
+The device running strategy to be used in analysis.
+
+Enums
+STRATEGY_UNSPECIFIED
+UNDEFINED.
+DESKTOP
+Fetch and analyze the URL for desktop browsers.
+MOBILE
+Fetch and analyze the URL for mobile devices.
+PagespeedApiLoadingExperienceV5
+The CrUX loading experience object that contains CrUX data breakdowns.
+
+JSON representation
+
+{
+  "id": string,
+  "metrics": {
+    string: {
+      object (UserPageLoadMetricV5)
+    },
+    ...
+  },
+  "overall_category": string,
+  "initial_url": string,
+  "origin_fallback": boolean
+}
+Fields
+id
+string
+
+The url, pattern or origin which the metrics are on.
+
+metrics
+map (key: string, value: object (UserPageLoadMetricV5))
+
+The map of <metrics, data>.
+
+An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+overall_category
+string
+
+The human readable speed "category" of the id.
+
+initial_url
+string
+
+The requested URL, which may differ from the resolved "id".
+
+origin_fallback
+boolean
+
+True if the result is an origin fallback from a page, false otherwise.
+
+LighthouseResultV5
+The Lighthouse result object.
+
+JSON representation
+
+{
+  "fetchTime": string,
+  "requestedUrl": string,
+  "finalUrl": string,
+  "lighthouseVersion": string,
+  "i18n": {
+    object (I18n)
+  },
+  "userAgent": string,
+  "audits": {
+    string: {
+      object (LighthouseAuditResultV5)
+    },
+    ...
+  },
+  "categoryGroups": {
+    string: {
+      object (CategoryGroupV5)
+    },
+    ...
+  },
+  "stackPacks": [
+    {
+      object (StackPack)
+    }
+  ],
+  "environment": {
+    object (Environment)
+  },
+  "runWarnings": array,
+  "runtimeError": {
+    object (RuntimeError)
+  },
+  "categories": {
+    object (Categories)
+  },
+  "timing": {
+    object (Timing)
+  },
+  "configSettings": {
+    object (ConfigSettings)
+  }
+}
+Fields
+fetchTime
+string
+
+The time that this run was fetched.
+
+requestedUrl
+string
+
+The original requested url.
+
+finalUrl
+string
+
+The final resolved url that was audited.
+
+lighthouseVersion
+string
+
+The lighthouse version that was used to generate this LHR.
+
+i18n
+object (I18n)
+
+The internationalization strings that are required to render the LHR.
+
+userAgent
+string
+
+The user agent that was used to run this LHR.
+
+audits
+map (key: string, value: object (LighthouseAuditResultV5))
+
+Map of audits in the LHR.
+
+An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+categoryGroups
+map (key: string, value: object (CategoryGroupV5))
+
+Map of category groups in the LHR.
+
+An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+stackPacks[]
+object (StackPack)
+
+The Stack Pack advice strings.
+
+environment
+object (Environment)
+
+Environment settings that were used when making this LHR.
+
+runWarnings
+array (ListValue format)
+
+List of all run warnings in the LHR. Will always output to at least [].
+
+runtimeError
+object (RuntimeError)
+
+A top-level error message that, if present, indicates a serious enough problem that this Lighthouse result may need to be discarded.
+
+categories
+object (Categories)
+
+Map of categories in the LHR.
+
+timing
+object (Timing)
+
+Timing information for this LHR.
+
+configSettings
+object (ConfigSettings)
+
+The configuration settings for this LHR.
+
+I18n
+Message containing the i18n data for the LHR - Version 1.
+
+JSON representation
+
+{
+  "rendererFormattedStrings": {
+    object (RendererFormattedStrings)
+  }
+}
+Fields
+rendererFormattedStrings
+object (RendererFormattedStrings)
+
+Internationalized strings that are formatted to the locale in configSettings.
+
+RendererFormattedStrings
+Message holding the formatted strings used in the renderer.
+
+JSON representation
+
+{
+  "varianceDisclaimer": string,
+  "opportunityResourceColumnLabel": string,
+  "opportunitySavingsColumnLabel": string,
+  "errorMissingAuditInfo": string,
+  "errorLabel": string,
+  "warningHeader": string,
+  "auditGroupExpandTooltip": string,
+  "passedAuditsGroupTitle": string,
+  "notApplicableAuditsGroupTitle": string,
+  "manualAuditsGroupTitle": string,
+  "toplevelWarningsMessage": string,
+  "scorescaleLabel": string,
+  "crcLongestDurationLabel": string,
+  "crcInitialNavigation": string,
+  "lsPerformanceCategoryDescription": string,
+  "labDataTitle": string
+}
+Fields
+varianceDisclaimer
+string
+
+The disclaimer shown below a performance metric value.
+
+opportunityResourceColumnLabel
+string
+
+The heading for the estimated page load savings opportunity of an audit.
+
+opportunitySavingsColumnLabel
+string
+
+The heading for the estimated page load savings of opportunity audits.
+
+errorMissingAuditInfo
+string
+
+The error string shown next to an erroring audit.
+
+errorLabel
+string
+
+The label shown next to an audit or metric that has had an error.
+
+warningHeader
+string
+
+The label shown above a bulleted list of warnings.
+
+auditGroupExpandTooltip
+string
+
+The tooltip text on an expandable chevron icon.
+
+passedAuditsGroupTitle
+string
+
+The heading that is shown above a list of audits that are passing.
+
+notApplicableAuditsGroupTitle
+string
+
+The heading shown above a list of audits that do not apply to a page.
+
+manualAuditsGroupTitle
+string
+
+The heading shown above a list of audits that were not computerd in the run.
+
+toplevelWarningsMessage
+string
+
+The label shown preceding important warnings that may have invalidated an entire report.
+
+scorescaleLabel
+string
+
+The label that explains the score gauges scale (0-49, 50-89, 90-100).
+
+crcLongestDurationLabel
+string
+
+The label for values shown in the summary of critical request chains.
+
+crcInitialNavigation
+string
+
+The label for the initial request in a critical request chain.
+
+lsPerformanceCategoryDescription
+string
+
+The disclaimer shown under performance explaning that the network can vary.
+
+labDataTitle
+string
+
+The title of the lab data performance category.
+
+StackPack
+Message containing Stack Pack information.
+
+JSON representation
+{
+  "id": string,
+  "title": string,
+  "iconDataURL": string,
+  "descriptions": {
+    string: string,
+    ...
+  }
+}
+Fields
+id
+string
+
+The stack pack id.
+
+title
+string
+
+The stack pack title.
+
+iconDataURL
+string
+
+The stack pack icon data uri.
+
+descriptions
+map (key: string, value: string)
+
+The stack pack advice strings.
+
+An object containing a list of "key": value pairs. Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.
+
+Environment
+Message containing environment configuration for a Lighthouse run.
+
+JSON representation
+{
+  "networkUserAgent": string,
+  "hostUserAgent": string,
+  "benchmarkIndex": number
+}
+Fields
+networkUserAgent
+string
+
+The user agent string that was sent over the network.
+
+hostUserAgent
+string
+
+The user agent string of the version of Chrome used.
+
+benchmarkIndex
+number
+
+The benchmark index number that indicates rough device class.
+
+RuntimeError
+Message containing a runtime error config.
+
+JSON representation
+{
+  "code": string,
+  "message": string
+}
+Fields
+code
+string
+
+The enumerated Lighthouse Error code.
+
+message
+string
+
+A human readable message explaining the error code.
+
+Categories
+The categories in a Lighthouse run.
+
+JSON representation
+{
+  "accessibility": {
+    object (LighthouseCategoryV5)
+  },
+  "best-practices": {
+    object (LighthouseCategoryV5)
+  },
+  "seo": {
+    object (LighthouseCategoryV5)
+  },
+  "pwa": {
+    object (LighthouseCategoryV5)
+  },
+  "performance": {
+    object (LighthouseCategoryV5)
+  }
+}
+Fields
+accessibility
+object (LighthouseCategoryV5)
+
+The accessibility category, containing all accessibility related audits.
+
+best-practices
+object (LighthouseCategoryV5)
+
+The best practices category, containing all best practices related audits.
+
+seo
+object (LighthouseCategoryV5)
+
+The Search-Engine-Optimization (SEO) category, containing all seo related audits.
+
+pwa
+object (LighthouseCategoryV5)
+
+The Progressive-Web-App (PWA) category, containing all pwa related audits.
+
+performance
+object (LighthouseCategoryV5)
+
+The performance category, containing all performance related audits.
+
+LighthouseCategoryV5
+A Lighthouse category.
+
+JSON representation
+{
+  "id": string,
+  "title": string,
+  "description": string,
+  "manualDescription": string,
+  "auditRefs": [
+    {
+      object (AuditRefs)
+    }
+  ],
+  "score": value
+}
+Fields
+id
+string
+
+The string identifier of the category.
+
+title
+string
+
+The human-friendly name of the category.
+
+description
+string
+
+A more detailed description of the category and its importance.
+
+manualDescription
+string
+
+A description for the manual audits in the category.
+
+auditRefs[]
+object (AuditRefs)
+
+An array of references to all the audit members of this category.
+
+score
+value (Value format)
+
+The overall score of the category, the weighted average of all its audits. (The category's score, can be null.)
+
+AuditRefs
+A light reference to an audit by id, used to group and weight audits in a given category.
+
+JSON representation
+{
+  "id": string,
+  "weight": number,
+  "group": string
+}
+Fields
+id
+string
+
+The audit ref id.
+
+weight
+number
+
+The weight this audit's score has on the overall category score.
+
+group
+string
+
+The category group that the audit belongs to (optional).
+
+Timing
+Message containing the performance timing data for the Lighthouse run.
+
+JSON representation
+{
+  "total": number
+}
+Fields
+total
+number
+
+The total duration of Lighthouse's run.
+
+ConfigSettings
+Message containing the configuration settings for the Lighthouse run.
+
+JSON representation
+{
+  "onlyCategories": value,
+  "emulatedFormFactor": string,
+  "locale": string,
+  "channel": string,
+  "formFactor": string
+}
+Fields
+onlyCategories
+value (Value format)
+
+List of categories of audits the run should conduct.
+
+emulatedFormFactor
+(deprecated)
+string
+
+This item is deprecated!
+
+The form factor the emulation should use. This field is deprecated, formFactor should be used instead.
+
+locale
+string
+
+The locale setting.
+
+channel
+string
+
+How Lighthouse was run, e.g. from the Chrome extension or from the npm module.
+
+formFactor
+string
+
+How Lighthouse should interpret this run in regards to scoring performance metrics and skipping mobile-only tests in desktop.
+
+PagespeedVersion
+The Pagespeed Version object.
+
+JSON representation
+{
+  "major": string,
+  "minor": string
+}
+Fields
+major
+string
+
+The major version number of PageSpeed used to generate these results.
+
+minor
+string
+
+The minor version number of PageSpeed used to generate these results.
+
+
+
+Was this helpful?
+
+Recommended for you
+
+Libraries and Samples
+The Google APIs client libraries, which are available in a number of popular programming languages, make it easy to use the PageSpeed Insights API. In the following tables, the first column shows each library's stage of development (note that some
+
+Updated Dec 20, 2022
+Get Started with the PageSpeed Insights API
+Use the PageSpeed Insights API to: The PageSpeed Insights API returns real-world data from the Chrome User Experience Report and lab data from Lighthouse. This tutorial assumes that you have general knowledge of command line interfaces and web
+
+Updated Nov 5, 2022
+Supported Languages
+PageSpeed Insights provide results localized in the following languages: Was this page helpful?
+
+Updated Nov 17, 2018
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License, and code samples are licensed under the Apache 2.0 License. For details, see the Google Developers Site Policies. Java is a registered trademark of Oracle and/or its affiliates.
+
+Last updated 2021-01-20 UTC.
+
+Product Info
+Terms of Service
+Release Notes
+Client Libraries
+Libraries and Samples
+Developer consoles
+Google API Console
+Google Cloud Platform Console
+Google Play Console
+Firebase Console
+Actions on Google Console
+Cast SDK Developer Console
+Chrome Web Store Dashboard
+Google Developers
+Android
+Chrome
+Firebase
+Google Cloud Platform
+All products
+Terms
+Privacy
+Sign up for the Google for Developers newsletter
+Subscribe
+
+English

@@ -1,0 +1,79 @@
+rizqhands
+Firebase logo
+Project Overview
+Functions
+App Distribution
+Remote Config
+Storage
+App Check
+A/B Testing
+Hosting
+All products
+Hosting
+Deploy web and mobile web apps in seconds using a secure global content delivery network
+Learn more
+How do I get started?
+View the docs
+How does Hosting work?
+View the docs
+What can Hosting do for me?
+Learn more
+
+More features for developers
+
+Authentication
+Authenticate and manage users
+
+Cloud Firestore
+Realtime updates, powerful queries, and automatic scaling
+
+Storage
+Store & retrieve user generated content
+See all Build features
+Set up Firebase Hosting
+Install Firebase CLI
+
+
+Initialize your project
+
+
+Register your app
+
+4
+Add Firebase SDK
+
+Use npm
+
+Use a <script> tag
+If you're already using npm and a module bundler such as webpack or Rollup, you can run the following command to install the latest SDK (Learn more):
+
+npm install firebase
+Then, initialize Firebase and begin using the SDKs for the products you'd like to use.
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC438A3Pq_fwLZBYQd9Ykc7chDam2BV90A",
+  authDomain: "rizqrevolution-90105.firebaseapp.com",
+  projectId: "rizqrevolution-90105",
+  storageBucket: "rizqrevolution-90105.appspot.com",
+  messagingSenderId: "329273460759",
+  appId: "1:329273460759:web:d5e261d27014d02b13f452",
+  measurementId: "G-GWQJ54JYQJ"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+Note: This option uses the modular JavaScript SDK, which provides reduced SDK size.
+
+Learn more about Firebase for web: Get Started, Web SDK API Reference, Samples
+
+5
+Deploy to Firebase Hosting

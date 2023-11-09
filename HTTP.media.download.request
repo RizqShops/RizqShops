@@ -1,0 +1,104 @@
+
+Google Workspace
+Workspace
+
+
+Google Chat
+
+Google Workspace
+Workspace
+Home
+Google Workspace
+Google Chat
+Reference
+Was this helpful?
+
+Send feedback
+Method: media.download
+
+bookmark
+Downloads media. Download is supported on the URI /v1/media/{+name}?alt=media.
+
+HTTP request
+GET https://chat.googleapis.com/v1/media/{resourceName=**}
+
+The URL uses gRPC Transcoding syntax.
+
+Path parameters
+Parameters
+resourceName
+string
+
+Name of the media that you are downloading. For more information, see spaces.messages.attachments.attachmentDataRef.
+
+Request body
+The request body must be empty.
+
+Response body
+If successful, this method returns the file content as bytes.
+
+To download only part of a file, use the Range header with a byte range. For example: Range: bytes=500-999.
+
+Authorization scopes
+Requires one of the following OAuth scopes:
+
+https://www.googleapis.com/auth/chat.bot
+https://www.googleapis.com/auth/chat.messages
+https://www.googleapis.com/auth/chat.messages.readonly
+For more information, see the Authorization guide.
+
+Was this helpful?
+
+Send feedback
+Recommended for you
+
+REST Resource: spaces.messages.attachments
+An attachment in Google Chat. string Resource name of the attachment, in the form spaces/*/messages/*/attachments/*. string Output only. The original file name for the content, not the full path. string Output only. The content type (MIME type) of
+
+Updated Aug 3, 2023
+REST Resource: spaces.messages
+A message in a Google Chat space. string Resource name in the form spaces/*/messages/*. Example: spaces/AAAAAAAAAAA/messages/BBBBBBBBBBB.BBBBBBBBBBB object ( User ) Output only. The user who created the message. If your Chat app authenticates as a
+
+Updated Oct 30, 2023
+Method: spaces.messages.create
+Creates a message in a Google Chat space. For an example, see Create a message. Calling this method requires authentication and supports the following authentication types: POST https://chat.googleapis.com/v1/{parent=spaces/*}/messages The URL uses
+
+Updated Oct 30, 2023
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License, and code samples are licensed under the Apache 2.0 License. For details, see the Google Developers Site Policies. Java is a registered trademark of Oracle and/or its affiliates.
+
+Last updated 2023-08-04 UTC.
+
+BlogBlog
+TwitterTwitter
+Code SamplesCode Samples
+CodelabsCodelabs
+VideosVideos
+Google Workspace for Developers
+Platform overview
+Developer products
+Developer support
+Terms of Service
+Tools
+Admin console
+Apps Script Dashboard
+Google Cloud console
+APIs Explorer
+Connect
+Blog
+Newsletter
+Twitter
+YouTube
+Google Developers
+Android
+Chrome
+Firebase
+Google Cloud Platform
+All products
+Terms
+Privacy
+Sign up for the Google for Developers newsletter
+Subscribe
+rizqshops@googlegroups.com
+
+English
+The new page has loaded

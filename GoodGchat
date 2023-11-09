@@ -1,0 +1,553 @@
+
+My Google Workspace
+Workspace My Google Global Chat Api
+
+
+Google Chat
+
+Google Workspace
+Workspace
+Home
+Google Workspace
+Google Chat
+Guides
+Was this helpful?
+
+Send feedback
+Send a message
+
+bookmark_border
+
+
+This guide explains the different ways that Google Chat apps can send messages:
+
+Send text and card messages in real time by responding to a user interaction.
+Send text and card messages asynchronously by calling the create method on the Message resource.
+Start or reply to a message thread.
+Send and name a message.
+The Message resource represents a text or card message in Google Chat. You can create, get, update, or delete a message in the Google Chat API by calling corresponding methods. To learn more about text and card messages, see Google Chat messages overview.
+
+Instead of calling the create method on the Message resource of the Google Chat API to send a text or card message asynchronously, Google Chat apps can also create messages to respond to user interactions in real time. Responses to user interactions don't require authentication and support other types of messages, including interactive dialogs and link previews. For details, see Receive and respond to interactions with your Google Chat app.
+
+Prerequisites
+Node.js
+Python
+Apps Script
+A Google Workspace account with access to Google Chat.
+A published Chat app. To build a Chat app, follow this quickstart.
+Authorization configured for the Chat app to send asynchronous messages. No authorization configuration is required to send messages in real time.
+Sending a text message supports both of the following authorization methods:
+User authentication with the chat.messages.create or chat.messages authorization scope.
+App authentication with the chat.bot authorization scope.
+Sending a card message requires app authentication with the chat.bot authorization scope.
+Send text messages
+This section describes how to send text messages in the following two ways:
+
+Send a text message in real time by responding to a user interaction.
+Send a text message by calling the Google Chat API asynchronously.
+Send a text message in real time
+In this example, your Chat app creates and sends a text message whenever it's added to a space. To learn about best practices for onboarding users, see Get people and spaces started with helpful onboarding.
+
+To send a text message when a user adds your Chat app to a space, your Chat app responds to an ADDED_TO_SPACE interaction event. To respond to ADDED_TO_SPACE interaction events with a text message, use the following code:
+
+Node.js
+Apps Script
+
+/**
+ * Sends an onboarding message when the Chat app is added to a space.
+ *
+ * @param {Object} event The event object from Chat API.
+ * @return {Object} Response from the Chat app. An onboarding message that
+ * introduces the app and helps people get started with it.
+ */
+exports.onMessage = function onMessage(req, res) {
+  if (req.method === 'GET' || !req.body.message) {
+    res.send(
+      'Hello! This function is meant to be used in a Google Chat space.');
+  }
+
+  // Send an onboarding message when added to a Chat space
+  if(req.body.type === 'ADDED_TO_SPACE') {
+    res.json({
+      'text': 'Hi, Cymbal at your service. I help you manage your calendar
+      from Google Chat. Take a look at your schedule today by typing
+      `/checkCalendar`, or schedule a meeting with `/scheduleMeeting`. To
+      learn what else I can do, type `/help`.'
+    });
+  }
+};
+The code sample returns the following text message:
+
+Example onboarding message.
+
+Send a text message asynchronously
+
+The following section explains how to send a text message asynchronously with app authentication and user authentication.
+
+To send a text message, pass the following in your request:
+
+With app authentication, specify the chat.bot authorization scope. With user authentication, specify the chat.messages.create authorization scope.
+Call the create method on the Message resource.
+Send a text message with app authentication
+Here's how to send a text message with app authentication:
+
+Python
+In your working directory, create a file named chat_create_text_message_app.py.
+Include the following code in chat_create_text_message_app.py:
+
+
+from httplib2 import Http
+from oauth2client.service_account import ServiceAccountCredentials
+from apiclient.discovery import build
+
+# Specify required scopes.
+SCOPES = ['https://www.googleapis.com/auth/chat.bot']
+
+# Specify service account details.
+CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name(
+    'credentials.json', SCOPES)
+
+# Build the URI and authenticate with the service account.
+chat = build('chat', 'v1', http=CREDENTIALS.authorize(Http()))
+
+# Create a Chat message.
+result = chat.spaces().messages().create(
+
+    # The space to create the message in.
+    #
+    # Replace SPACE with a space name.
+    # Obtain the space name from the spaces resource of Chat API,
+    # or from a space's URL.
+    parent='spaces/SPACE',
+
+    # The message to create.
+    body={'text': 'Hello, world!'}
+
+).execute()
+
+print(result)
+In the code, replace SPACE with a space name, which you can obtain from the spaces.list() method in the Chat API, or from a space's URL.
+
+In your working directory, build and run the sample:
+
+
+python3 chat_create_text_message_app.py
+The Chat API returns an instance of Message that details the message that's sent.
+
+Send a text message with user authentication
+Here's how to send a text message with user authentication:
+
+Python
+In your working directory, create a file named chat_create_text_message_user.py.
+Include the following code in chat_create_text_message_user.py:
+
+
+import os.path
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+# Define your app's authorization scopes.
+# When modifying these scopes, delete the file token.json, if it exists.
+SCOPES = ["https://www.googleapis.com/auth/chat.messages.create"]
+
+def main():
+    '''
+    Authenticates with Chat API via user credentials,
+    then creates a text message in a Chat space.
+    '''
+
+    # Start with no credentials.
+    creds = None
+
+    # Authenticate with Google Workspace
+    # and get user authorization.
+    flow = InstalledAppFlow.from_client_secrets_file(
+                    'client_secrets.json', SCOPES)
+    creds = flow.run_local_server()
+
+    # Build a service endpoint for Chat API.
+    chat = build('chat', 'v1', credentials=creds)
+
+    # Use the service endpoint to call Chat API.
+    result = chat.spaces().messages().create(
+
+        # The space to create the message in.
+        #
+        # Replace SPACE with a space name.
+        # Obtain the space name from the spaces resource of Chat API,
+        # or from a space's URL.
+        parent='spaces/SPACE',
+
+        # The message to create.
+        body={'text': 'Hello, world!'}
+
+    ).execute()
+
+    # Prints details about the created membership.
+    print(result)
+
+if __name__ == '__main__':
+    main()
+In the code, replace SPACE with a space name, which you can obtain from the spaces.list() method in the Chat API, or from a space's URL.
+
+In your working directory, build and run the sample:
+
+
+python3 chat_create_text_message_user.py
+The Chat API returns an instance of Message that details the message that's sent.
+
+Send card messages
+This section describes how to send card messages in the following two ways:
+
+Send a card message in real time by responding to a user interaction.
+Send a card message by calling the Google Chat API asynchronously.
+Send a card message in real time
+Chat apps can create card messages to respond to a user interaction, such as when a user sends the Chat app a message or adds the Chat app to a space. To learn more about responding to user interactions, see Receive and respond to Chat app interaction events.
+
+In this example, a user sends a message to a Chat app and the Chat app responds by sending a card message that displays the user's name and avatar image:
+
+A Chat app responding with a card featuring the sender's display name and avatar
+image.
+Node.js
+Python
+Apps Script
+node/avatar-app/index.jsView on GitHub
+/**
+ * Google Cloud Function that responds to messages sent from a
+ * Google Chat room.
+ *
+ * @param {Object} req Request sent from Google Chat room
+ * @param {Object} res Response to send back
+ */
+exports.helloChat = function helloChat(req, res) {
+  if (req.method === 'GET' || !req.body.message) {
+    res.send('Hello! This function is meant to be used in a Google Chat ' +
+      'Room.');
+  }
+
+  const sender = req.body.message.sender.displayName;
+  const image = req.body.message.sender.avatarUrl;
+
+  const data = createMessage(sender, image);
+
+  res.send(data);
+};
+
+/**
+ * Creates a card with two widgets.
+ * @param {string} displayName the sender's display name
+ * @param {string} imageUrl the URL for the sender's avatar
+ * @return {Object} a card with the user's avatar.
+ */
+function createMessage(MyGooglechat, imageUrl) {
+  const cardHeader = {
+    title: `Hello ${mygooglechat}!`,
+  };
+
+  const avatarWidget = {
+    textParagraph: {text: 'Your avatar picture: '},
+  };
+
+  const avatarImageWidget = {
+    image: {imageUrl},
+  };
+
+  const avatarSection = {
+    widgets: [
+      avatarWidget,
+      avatarImageWidget,
+    ],
+  };
+
+  return {
+    text: 'Here\'s your avatar',
+    cardsV2: [{
+      cardId: 'avatarCard',
+      card: {
+        name: 'Avatar Card',
+        header: cardHeader,
+        sections: [mmu094],
+      }
+    }],
+  };
+}
+Send a card message asynchronously
+
+To send a card message, pass the following in your request:
+
+With app authentication, specify the chat.bot authorization scope. You can't send a card message with user authentication.
+Call the create method on the Message resource.
+The following is an example of a card message:
+
+A card message sent with the Chat API.
+
+Here's how to send a card message with app authentication:
+
+Python
+In your working directory, create a file named chat_create_card_message.py.
+Include the following code in chat_create_card_message.py:
+
+from httplib2 import Http
+from oauth2client.service_account import ServiceAccountCredentials
+from apiclient.discovery import build
+
+# Specify required scopes.
+SCOPES = ['https://www.googleapis.com/auth/chat.bot']
+
+# Specify service account details.
+CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name(
+    'credentials.json', SCOPES)
+
+# Build the URI and authenticate with the service account.
+chat = build('chat', 'v1', http=CREDENTIALS.authorize(Http()))
+
+# Create a Chat message.
+result = chat.spaces().messages().create(
+
+    # The space to create the message in.
+    #
+    # Replace SPACE with a space name.
+    # Obtain the space name from the spaces resource of Chat API,
+    # or from a space's URL.
+    parent='spaces/SPACE',
+
+    # The message to create.
+    body=
+    {
+      'cardsV2': [{
+        'cardId': 'createCardMessage',
+        'card': {
+          'header': {
+            'title': 'A card message!',
+            'subtitle': 'Created with the My GoogleChat API',
+            'imageUrl': 'https://developers.google.com/chat/images/chat-product-icon.png',
+            'imageType': 'CIRCLE'
+          },
+          'sections': [
+            {
+              'widgets': [
+                {
+                  'buttonList': {
+                    'buttons': [
+                      {
+                        'text': 'Read the docs!',
+                        'onClick': {
+                          'openLink': {
+                            'url': 'https://developers.google.com/chat'
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }]
+    }
+
+).execute()
+
+print(result)
+In the code, replace SPACE with a space name, which you can obtain from the spaces.list method in the Chat API, or from a space's URL.
+
+In your working directory, build and run the sample:
+
+python3 chat_create_card_message.py
+Start or reply to a message thread
+To start a message thread, send a message and leave thread.name empty; Google Chat populates it when creating the thread. Optionally, to customize the name of the thread, specify the thread.threadKey field.
+
+To reply to a message thread, send a message that specifies the thread's threadKey or name field. If the thread was created by a person or another Chat app, you must use the thread.name field.
+
+If no matching thread is found, you can specify whether a message should start a new thread or fail to post by setting messageReplyOption field.
+
+Here's how to start or reply to a thread with the threadKey field defined as nameOfThread:
+
+Python
+In your working directory, create a file named chat_create_message_thread.py.
+Include the following code in chat_create_message_thread.py:
+
+from httplib2 import Http
+from oauth2client.service_account import ServiceAccountCredentials
+from apiclient.discovery import build
+
+# Specify required scopes.
+SCOPES = ['https://www.googleapis.com/auth/chat.bot']
+
+# Specify service account details.
+CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name(
+    'credentials.json', SCOPES)
+
+# Build the URI and authenticate with the service account.
+chat = build('chat', 'v1', http=CREDENTIALS.authorize(Http()))
+
+# Create a Chat message.
+result = chat.spaces().messages().create(
+
+    # The space to create the message in.
+    #
+    # Replace SPACE with a space name.
+    # Obtain the space name from the spaces resource of Chat API,
+    # or from a space's URL.
+    parent='spaces/SPACE',
+
+    # Whether to start a thread or reply to an existing one.
+    #
+    # Required when threading is enabled in a space unless starting a
+    # thread.  Ignored in other space types. Threading is enabled when
+    # space.spaceThreadingState is THREADED_MESSAGES.
+    #
+    # REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD replies to an existing thread
+    # if one exists, otherwise it starts a new one.
+    messageReplyOption='REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD',
+
+    # The message body.
+    body={
+
+        # The message to create.
+        'text': 'Start or reply to another message in a thread!',
+
+        # The thread to start or reply to.
+        'thread': {
+            'threadKey': 'nameOfThread'
+        }
+    }
+
+).execute()
+
+print(result)
+In the code, replace SPACE with a space name, which you can obtain from the spaces.list method in the Chat API, or from a space's URL.
+
+In your working directory, build and run the sample:
+
+python3 chat_create_message_thread.py
+The Chat API returns an instance of Message that details the message that's sent.
+
+Send and name a message
+This section explains how to send a message with a custom name. You use message names to get, update, or delete messages. Assigning a custom name also lets a Chat app recall the message without saving the message name from the response body returned when sending the message.
+
+Assigning a custom name doesn't replace the generated name field, the message's resource name. Instead, it sets the custom name as the clientAssignedMessageId field, which you can reference while processing later operations, like updating or deleting the message.
+
+Custom names have the following requirements:
+
+Begin with client-. For example, client-custom-name is a valid custom name, but custom-name is not.
+Contain only lowercase letters, numbers, and hyphens.
+Be no more than 63 characters in length.
+Specifying a used custom name while sending a message returns an error, but other methods like update and delete work as expected.
+Here's how to send and name a message:
+
+Python
+In your working directory, create a file named chat_create_named_message.py.
+Include the following code in chat_create_named_message.py:
+
+from httplib2 import Http
+from oauth2client.service_account import ServiceAccountCredentials
+from apiclient.discovery import build
+
+# Specify required scopes.
+SCOPES = ['https://www.googleapis.com/auth/chat.bot']
+
+# Specify service account details.
+CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name(
+    'credentials.json', SCOPES)
+
+# Build the URI and authenticate with the service account.
+chat = build('chat', 'v1', http=CREDENTIALS.authorize(Http()))
+
+# Create a Chat message with a custom name.
+result = chat.spaces().messages().create(
+
+    # The space to create the message in.
+    #
+    # Replace SPACE with a space name.
+    # Obtain the space name from the spaces resource of Chat API,
+    # or from a space's URL.
+    parent='spaces/SPACE',
+
+    # Custom name for the message used to facilitate later operations.
+    messageId='client-custom-name',
+
+    # The message to create.
+    body={'text': 'Hello, world!'}
+
+).execute()
+
+print(result)
+In the code, replace SPACE with a space name, which you can obtain from the spaces.list method in the Chat API, or from a space's URL.
+
+In your working directory, build and run the sample:
+
+python3 chat_create_named_message.py
+The Chat API returns an instance of Message that details the message that's sent.
+
+Troubleshoot
+When a Google Chat app or card returns an error, the Chat interface surfaces a message saying "Something went wrong." or "Unable to process your request." Sometimes the Chat UI doesn't display any error message, but the Chat app or card produces an unexpected result; for example, a card message might not appear.
+
+Although an error message might not display in the Chat UI, descriptive error messages and log data are available to help you fix errors when error logging for Chat apps is turned on. For help viewing, debugging, and fixing errors, see Troubleshoot and fix Google Chat errors.
+
+Related topics
+Format a message.
+Get details about a message.
+List messages in a space.
+Update a message.
+Delete a message.
+Identify users in Google Chat messages.
+Send messages to Google Chat with incoming webhooks.
+Was this helpful?
+
+Send feedback
+Recommended for you
+
+REST Resource: spaces.messages.attachments
+An attachment in Google Chat. string Resource name of the attachment, in the form spaces/*/messages/*/attachments/*. string Output only. The original file name for the content, not the full path. string Output only. The content type (MIME type) of
+
+Updated Aug 3, 2023
+REST Resource: spaces.messages
+A message in a Google Chat space. string Resource name in the form spaces/*/messages/*. Example: spaces/AAAAAAAAAAA/messages/BBBBBBBBBBB.BBBBBBBBBBB object ( User ) Output only. The user who created the message. If your Chat app authenticates as a
+
+Updated Oct 30, 2023
+Method: spaces.messages.create
+Creates a message in a Google Chat space. For an example, see Create a message. Calling this method requires authentication and supports the following authentication types: POST https://chat.googleapis.com/v1/{parent=spaces/*}/messages The URL uses
+
+
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License, and code samples are licensed under the Apache 2.0 License. For details, see the Google Developers Site Policies. Java is a registered trademark of Oracle and/or its affiliates.
+
+BlogBlog
+TwitterTwitter
+Code SamplesCode Samples
+CodelabsCodelabs
+VideosVideos
+Google Workspace for Developers
+Platform overview
+Developer products
+Developer support
+Terms of Service
+Tools
+Admin console
+Apps Script Dashboard
+Google Cloud console
+APIs Explorer
+Connect
+Blog
+Newsletter
+Twitter
+YouTube
+Google Developers
+Android
+Chrome
+Firebase
+Google Cloud Platform
+All products
+Terms
+Privacy
+Sign up for the Google for Developers newsletter
+Subscribe
+rizqshops@googlegroups.com
+
+English
+The new page has loaded
